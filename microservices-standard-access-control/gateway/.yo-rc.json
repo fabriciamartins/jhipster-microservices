@@ -2,7 +2,8 @@
   "generator-jhipster": {
     "promptValues": {
       "packageName": "com.unifacisa.standard",
-      "nativeLanguage": "pt-br"
+      "nativeLanguage": "pt-br",
+      "microservicePath": "../microservice-pedido"
     },
     "jhipsterVersion": "4.7.0",
     "baseName": "gateway",
