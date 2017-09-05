@@ -3,13 +3,19 @@ package com.unifacisa.standard.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.unifacisa.standard.domain.Pedido;
 
+import com.unifacisa.standard.domain.Produto;
+import com.unifacisa.standard.domain.Usuario;
 import com.unifacisa.standard.repository.PedidoRepository;
+import com.unifacisa.standard.security.AuthoritiesConstants;
+import com.unifacisa.standard.security.SecurityUtils;
 import com.unifacisa.standard.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -113,5 +119,28 @@ public class PedidoResource {
         log.debug("REST request to delete Pedido : {}", id);
         pedidoRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
+    }
+
+    @GetMapping("/pedidos/descricao/{id}")
+    @Timed
+    @Secured(AuthoritiesConstants.ADMIN)
+    public ResponseEntity<String> getDescricaoPedido(@PathVariable String id){
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+ SecurityUtils.getCurrentUserJWT());
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        try{
+            Pedido pedido = pedidoRepository.findOne(id);
+            Usuario usuario = restTemplate.exchange("http://localhost:8080/api/users/"+pedido.getIdUsuario(), HttpMethod.GET, request, Usuario.class).getBody();
+            Produto produto = restTemplate.exchange("http://localhost:8081/api/produtos/"+pedido.getIdProduto(), HttpMethod.GET, request, Produto.class).getBody();
+
+            return ResponseEntity.ok("Código do Pedido: "+pedido.getId()+
+                "\n Nome do Usuário: "+usuario.getFirstName()+
+                "\n Nome do Produto: "+produto.getNome());
+
+        }catch(Exception ex){
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
