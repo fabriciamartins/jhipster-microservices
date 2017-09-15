@@ -4,6 +4,7 @@ import com.unifacisa.decentralized.PedidoApp;
 
 import com.unifacisa.decentralized.domain.Pedido;
 import com.unifacisa.decentralized.repository.PedidoRepository;
+import com.unifacisa.decentralized.repository.UserRepository;
 import com.unifacisa.decentralized.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -45,6 +46,9 @@ public class PedidoResourceIntTest {
     private PedidoRepository pedidoRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -60,7 +64,7 @@ public class PedidoResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PedidoResource pedidoResource = new PedidoResource(pedidoRepository);
+        final PedidoResource pedidoResource = new PedidoResource(pedidoRepository, userRepository);
         this.restPedidoMockMvc = MockMvcBuilders.standaloneSetup(pedidoResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
