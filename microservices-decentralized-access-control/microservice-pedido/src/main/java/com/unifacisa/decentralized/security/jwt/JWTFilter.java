@@ -1,8 +1,12 @@
 package com.unifacisa.decentralized.security.jwt;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -40,6 +44,32 @@ public class JWTFilter extends GenericFilterBean {
         String bearerToken = request.getHeader(JWTConfigurer.AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());
+        }
+        else{
+            //pega o login e senha do usuário passados no http header
+            String username = request.getHeader("Username");
+            String password = request.getHeader("Password");
+
+            if(StringUtils.hasText(username) && StringUtils.hasText(password)){
+
+                String url = "http://localhost:8082/api/authenticate?username="+username+"&password="+password;
+
+                try{
+                    HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+
+                    RestTemplate restTemplate = new RestTemplate();
+                    String jwt = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+
+                    if (StringUtils.hasText(jwt.toString()) && this.tokenProvider.validateToken(jwt.toString())) {
+                        Authentication authentication = this.tokenProvider.getAuthentication(jwt.toString());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+
+                    return jwt;
+                }catch(Exception ex){
+                    System.out.println(ex.getStackTrace());
+                }
+            }
         }
         return null;
     }
