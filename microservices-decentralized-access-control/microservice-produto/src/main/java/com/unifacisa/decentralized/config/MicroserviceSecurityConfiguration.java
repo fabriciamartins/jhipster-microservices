@@ -4,16 +4,26 @@ import com.unifacisa.decentralized.security.AuthoritiesConstants;
 import com.unifacisa.decentralized.security.jwt.JWTConfigurer;
 import com.unifacisa.decentralized.security.jwt.TokenProvider;
 
+import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
+
+import javax.annotation.PostConstruct;
 
 @Configuration
 @EnableWebSecurity
@@ -22,8 +32,39 @@ public class MicroserviceSecurityConfiguration extends WebSecurityConfigurerAdap
 
     private final TokenProvider tokenProvider;
 
-    public MicroserviceSecurityConfiguration(TokenProvider tokenProvider) {
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    private final UserDetailsService userDetailsService;
+
+    private final CorsFilter corsFilter;
+
+    public MicroserviceSecurityConfiguration(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder,
+                                             UserDetailsService userDetailsService, CorsFilter corsFilter) {
         this.tokenProvider = tokenProvider;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userDetailsService = userDetailsService;
+        this.corsFilter = corsFilter;
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+            authenticationManagerBuilder
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
+        } catch (Exception e) {
+            throw new BeanInitializationException("Security configuration failed", e);
+        }
+    }
+
+    @Bean
+    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint() {
+        return new Http401UnauthorizedEntryPoint();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Override
@@ -42,6 +83,10 @@ public class MicroserviceSecurityConfiguration extends WebSecurityConfigurerAdap
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling()
+            .authenticationEntryPoint(http401UnauthorizedEntryPoint())
+        .and()
             .csrf()
             .disable()
             .headers()
@@ -52,6 +97,7 @@ public class MicroserviceSecurityConfiguration extends WebSecurityConfigurerAdap
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
             .authorizeRequests()
+            .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/**").authenticated()
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
