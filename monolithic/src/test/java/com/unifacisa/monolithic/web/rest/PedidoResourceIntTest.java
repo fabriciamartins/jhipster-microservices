@@ -4,6 +4,8 @@ import com.unifacisa.monolithic.MonolithicApp;
 
 import com.unifacisa.monolithic.domain.Pedido;
 import com.unifacisa.monolithic.repository.PedidoRepository;
+import com.unifacisa.monolithic.repository.UserRepository;
+import com.unifacisa.monolithic.repository.ProdutoRepository;
 import com.unifacisa.monolithic.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -45,6 +47,12 @@ public class PedidoResourceIntTest {
     private PedidoRepository pedidoRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ProdutoRepository produtoRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -60,7 +68,7 @@ public class PedidoResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PedidoResource pedidoResource = new PedidoResource(pedidoRepository);
+        final PedidoResource pedidoResource = new PedidoResource(pedidoRepository, userRepository, produtoRepository);
         this.restPedidoMockMvc = MockMvcBuilders.standaloneSetup(pedidoResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

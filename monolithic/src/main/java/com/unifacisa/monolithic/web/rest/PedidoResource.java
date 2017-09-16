@@ -3,12 +3,19 @@ package com.unifacisa.monolithic.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.unifacisa.monolithic.domain.Pedido;
 
+import com.unifacisa.monolithic.domain.User;
+import com.unifacisa.monolithic.domain.Produto;
 import com.unifacisa.monolithic.repository.PedidoRepository;
+import com.unifacisa.monolithic.repository.UserRepository;
+import com.unifacisa.monolithic.repository.ProdutoRepository;
+import com.unifacisa.monolithic.security.AuthoritiesConstants;
 import com.unifacisa.monolithic.web.rest.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -29,8 +36,15 @@ public class PedidoResource {
     private static final String ENTITY_NAME = "pedido";
 
     private final PedidoRepository pedidoRepository;
-    public PedidoResource(PedidoRepository pedidoRepository) {
+
+    private final UserRepository userRepository;
+
+    private final ProdutoRepository produtoRepository;
+
+    public PedidoResource(PedidoRepository pedidoRepository, UserRepository userRepository, ProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
+        this.userRepository = userRepository;
+        this.produtoRepository = produtoRepository;
     }
 
     /**
@@ -49,7 +63,7 @@ public class PedidoResource {
         }
         Pedido result = pedidoRepository.save(pedido);
         return ResponseEntity.created(new URI("/api/pedidos/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -71,7 +85,7 @@ public class PedidoResource {
         }
         Pedido result = pedidoRepository.save(pedido);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pedido.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pedido.getId()))
             .body(result);
     }
 
@@ -113,5 +127,25 @@ public class PedidoResource {
         log.debug("REST request to delete Pedido : {}", id);
         pedidoRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id)).build();
+    }
+
+    @GetMapping("/pedidos/descricao/{id}")
+    @Timed
+    @Secured(AuthoritiesConstants.ADMIN)
+    public ResponseEntity<String> getDescricaoPedido(@PathVariable String id){
+
+        try{
+
+            Pedido pedido = pedidoRepository.findOne(id);
+            User usuario = userRepository.findOne(pedido.getIdUsuario());
+            Produto produto = produtoRepository.findOne(pedido.getIdProduto());
+
+            return ResponseEntity.ok("Código do Pedido: "+pedido.getId()+
+                "\n Nome do Usuário: "+usuario.getFirstName()+
+                "\n Nome do Produto: "+produto.getNome());
+
+        }catch(Exception ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
