@@ -35,13 +35,12 @@ public class UserJWTController {
     @PostMapping(path="/authenticate", params={"username", "password"})
     @Timed
     public String authorize(@RequestParam String username, @RequestParam String password) {
-        System.out.println("AUTHORIZE");
+
         UsernamePasswordAuthenticationToken authenticationToken =
             new UsernamePasswordAuthenticationToken(username, password);
-        System.out.println("AUTHORIZE 2");
+
         try {
             Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
-            System.out.println("AUTHORIZE 3");
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return tokenProvider.createToken(authentication, true);
         } catch (AuthenticationException ae) {

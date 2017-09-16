@@ -1,5 +1,8 @@
 package com.unifacisa.decentralized.security.jwt;
 
+import com.unifacisa.decentralized.web.rest.UserJWTController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,6 +24,12 @@ import java.io.IOException;
  * found.
  */
 public class JWTFilter extends GenericFilterBean {
+
+    private final Logger log = LoggerFactory.getLogger(JWTFilter.class);
+
+    public static final String USERNAME_HEADER = "Username";
+
+    public static final String PASSWORD_HEADER = "Password";
 
     private TokenProvider tokenProvider;
 
@@ -47,8 +56,8 @@ public class JWTFilter extends GenericFilterBean {
         }
         else{
             //pega o login e senha do usuário passados no http header
-            String username = request.getHeader("Username");
-            String password = request.getHeader("Password");
+            String username = request.getHeader(USERNAME_HEADER);
+            String password = request.getHeader(PASSWORD_HEADER);
 
             if(StringUtils.hasText(username) && StringUtils.hasText(password)){
 
@@ -56,18 +65,10 @@ public class JWTFilter extends GenericFilterBean {
 
                 try{
                     HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
-
                     RestTemplate restTemplate = new RestTemplate();
-                    String jwt = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-
-                    if (StringUtils.hasText(jwt.toString()) && this.tokenProvider.validateToken(jwt.toString())) {
-                        Authentication authentication = this.tokenProvider.getAuthentication(jwt.toString());
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-
-                    return jwt;
+                    return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
                 }catch(Exception ex){
-                    System.out.println(ex.getStackTrace());
+                    log.trace("Authentication exception trace: {}", ex);
                 }
             }
         }
