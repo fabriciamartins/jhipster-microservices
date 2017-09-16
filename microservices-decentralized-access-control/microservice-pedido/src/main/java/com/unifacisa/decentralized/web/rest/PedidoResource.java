@@ -60,7 +60,7 @@ public class PedidoResource {
         }
         Pedido result = pedidoRepository.save(pedido);
         return ResponseEntity.created(new URI("/api/pedidos/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -82,7 +82,7 @@ public class PedidoResource {
         }
         Pedido result = pedidoRepository.save(pedido);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pedido.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pedido.getId()))
             .body(result);
     }
 
@@ -137,15 +137,15 @@ public class PedidoResource {
 
         try{
             Pedido pedido = pedidoRepository.findOne(id);
-            User usuario = userRepository.findOne(pedido.getIdUsuario());
+            User user = userRepository.findOne(pedido.getIdUsuario());
             Produto produto = restTemplate.exchange("http://localhost:8081/api/produtos/"+pedido.getIdProduto(), HttpMethod.GET, request, Produto.class).getBody();
 
             return ResponseEntity.ok("Código do Pedido: "+pedido.getId()+
-                "\n Nome do Usuário: "+usuario.getFirstName()+
+                "\n Nome do Usuário: "+user.getFirstName()+
                 "\n Nome do Produto: "+produto.getNome());
 
         }catch(Exception ex){
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }
