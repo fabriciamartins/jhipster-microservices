@@ -1,0 +1,13 @@
+version: '2'
+services:
+    venda-app:
+        image: venda
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATA_MONGODB_URI=mongodb://venda-mongodb:27017
+            - SPRING_DATA_MONGODB_DATABASE=venda
+            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+    venda-mongodb:
+        extends:
+            file: mongodb.yml
+            service: venda-mongodb
