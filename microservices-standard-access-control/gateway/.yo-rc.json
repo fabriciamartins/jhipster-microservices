@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "com.unifacisa.standard",
       "nativeLanguage": "pt-br",
-      "microservicePath": "../microservice-pedido"
+      "microservicePath": "../microservice-venda"
     },
     "jhipsterVersion": "4.7.0",
     "baseName": "gateway",
