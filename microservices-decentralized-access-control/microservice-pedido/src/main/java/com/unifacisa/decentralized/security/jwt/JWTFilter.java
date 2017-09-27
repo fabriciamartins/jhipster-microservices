@@ -42,7 +42,24 @@ public class JWTFilter extends GenericFilterBean {
         throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwt = resolveToken(httpServletRequest);
-        if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
+        if(jwt == null){
+            //pega o login e senha do usuário passados no http header
+            String username = httpServletRequest.getHeader(USERNAME_HEADER);
+            String password = httpServletRequest.getHeader(PASSWORD_HEADER);
+
+            if(username != null && password != null){
+                try{
+                    HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+                    RestTemplate restTemplate = new RestTemplate();
+                    jwt = restTemplate.exchange("http://localhost:8082/api/authenticate?username="+username+"&password="+password,
+                        HttpMethod.POST, entity, String.class).getBody();
+                    SecurityContextHolder.getContext().setAuthentication(this.tokenProvider.getAuthentication(jwt));
+                }catch(Exception ex){
+                    log.trace("Authentication exception trace: {}", ex);
+                }
+            }
+        }
+        else if (this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -53,24 +70,6 @@ public class JWTFilter extends GenericFilterBean {
         String bearerToken = request.getHeader(JWTConfigurer.AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());
-        }
-        else{
-            //pega o login e senha do usuário passados no http header
-            String username = request.getHeader(USERNAME_HEADER);
-            String password = request.getHeader(PASSWORD_HEADER);
-
-            if(StringUtils.hasText(username) && StringUtils.hasText(password)){
-
-                String url = "http://localhost:8082/api/authenticate?username="+username+"&password="+password;
-
-                try{
-                    HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
-                    RestTemplate restTemplate = new RestTemplate();
-                    return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
-                }catch(Exception ex){
-                    log.trace("Authentication exception trace: {}", ex);
-                }
-            }
         }
         return null;
     }

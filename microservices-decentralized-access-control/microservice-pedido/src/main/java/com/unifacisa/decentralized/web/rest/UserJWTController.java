@@ -41,8 +41,7 @@ public class UserJWTController {
 
         try {
             Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return tokenProvider.createToken(authentication, true);
+            return tokenProvider.createToken(authentication, false);
         } catch (AuthenticationException ae) {
             log.trace("Authentication exception trace: {}", ae);
             return null;
