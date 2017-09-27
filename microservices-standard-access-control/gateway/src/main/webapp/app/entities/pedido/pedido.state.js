@@ -33,7 +33,7 @@
         })
         .state('pedido-detail', {
             parent: 'pedido',
-            url: '/pedido/{id}',
+            url: '/descricao/{id}',
             data: {
                 authorities: ['ROLE_USER'],
                 pageTitle: 'gatewayApp.pedido.detail.title'
@@ -51,7 +51,7 @@
                     return $translate.refresh();
                 }],
                 entity: ['$stateParams', 'Pedido', function($stateParams, Pedido) {
-                    return Pedido.get({id : $stateParams.id}).$promise;
+                    return Pedido.getDescricao({id : $stateParams.id}).$promise;
                 }],
                 previousState: ["$state", function ($state) {
                     var currentStateData = {

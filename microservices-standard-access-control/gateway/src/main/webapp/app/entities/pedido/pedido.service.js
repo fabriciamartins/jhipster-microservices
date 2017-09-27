@@ -20,7 +20,18 @@
                     return data;
                 }
             },
-            'update': { method:'PUT' }
+            'update': { method:'PUT' },
+            'getDescricao': {
+                url: 'pedido/' + 'api/pedidos/descricao/:id',
+                method: 'GET',
+                transformResponse: function (data) {
+                    if (data) {
+                        var response = {};
+                        response.data = data;
+                    }
+                    return response;
+                }
+            }
         });
     }
 })();
