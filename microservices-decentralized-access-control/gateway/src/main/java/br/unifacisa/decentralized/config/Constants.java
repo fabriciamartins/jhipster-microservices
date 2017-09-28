@@ -11,6 +11,9 @@ public final class Constants {
     public static final String SYSTEM_ACCOUNT = "system";
     public static final String ANONYMOUS_USER = "anonymoususer";
 
+    //Microservices URL
+    public static final String MICROSERVICE_PRODUTO = "http://localhost:8081";
+
     private Constants() {
     }
 }
