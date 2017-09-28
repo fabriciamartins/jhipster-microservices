@@ -7,7 +7,7 @@
     Pedido.$inject = ['$resource'];
 
     function Pedido ($resource) {
-        var resourceUrl =  'pedido/' + 'api/pedidos/:id';
+        var resourceUrl =  'api/pedidos/:id';
 
         return $resource(resourceUrl, {}, {
             'query': { method: 'GET', isArray: true},
