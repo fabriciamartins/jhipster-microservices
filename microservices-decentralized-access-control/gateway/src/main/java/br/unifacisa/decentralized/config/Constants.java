@@ -14,6 +14,7 @@ public final class Constants {
     //Microservices URL
     public static final String MICROSERVICE_PRODUTO = "http://localhost:8081";
     public static final String MICROSERVICE_PEDIDO = "http://localhost:8082";
+    public static final String MICROSERVICE_VENDA = "http://localhost:8083";
 
     private Constants() {
     }

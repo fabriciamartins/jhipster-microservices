@@ -7,7 +7,7 @@
     Venda.$inject = ['$resource'];
 
     function Venda ($resource) {
-        var resourceUrl =  'venda/' + 'api/vendas/:id';
+        var resourceUrl =  'api/vendas/:id';
 
         return $resource(resourceUrl, {}, {
             'query': { method: 'GET', isArray: true},
