@@ -1,0 +1,40 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "br.unifacisa.decentralized",
+      "nativeLanguage": "pt-br",
+      "microservicePath": "../microservice-venda"
+    },
+    "jhipsterVersion": "4.7.0",
+    "baseName": "gateway",
+    "packageName": "br.unifacisa.decentralized",
+    "packageFolder": "br/unifacisa/decentralized",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "hibernateCache": "hazelcast",
+    "clusteredHttpSession": false,
+    "websocket": false,
+    "databaseType": "mongodb",
+    "devDatabaseType": "mongodb",
+    "prodDatabaseType": "mongodb",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSocialSignIn": false,
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "e5d872eeef4006a7eebb6ce9775328bdef9596f4",
+    "clientFramework": "angular1",
+    "useSass": false,
+    "clientPackageManager": "yarn",
+    "applicationType": "gateway",
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "enableTranslation": true,
+    "nativeLanguage": "pt-br",
+    "languages": [
+      "pt-br",
+      "en"
+    ]
+  }
+}
